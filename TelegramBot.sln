@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31911.196
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeRatesOnDate", "ExchangeRatesOnDate\ExchangeRatesOnDate.csproj", "{ACEA4874-358B-479A-A850-8C3481C5840C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeRatesOnDate", "ExchangeRatesOnDate\ExchangeRatesOnDate.csproj", "{ACEA4874-358B-479A-A850-8C3481C5840C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeCurrencyExchangeApiLib", "ExchangeRatesLibrary\FreeCurrencyExchangeApiLib.csproj", "{53A2C3BD-DB04-42A7-BFE9-216C9C852E80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{ACEA4874-358B-479A-A850-8C3481C5840C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACEA4874-358B-479A-A850-8C3481C5840C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACEA4874-358B-479A-A850-8C3481C5840C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53A2C3BD-DB04-42A7-BFE9-216C9C852E80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53A2C3BD-DB04-42A7-BFE9-216C9C852E80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53A2C3BD-DB04-42A7-BFE9-216C9C852E80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53A2C3BD-DB04-42A7-BFE9-216C9C852E80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
