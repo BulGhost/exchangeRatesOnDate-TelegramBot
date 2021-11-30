@@ -10,46 +10,35 @@ namespace FreeCurrencyExchangeApiLib
 {
     public class CurrencyExchanger : ICurrencyExchanger
     {
-        private string _dateForRequestToApi;
-
-        public decimal DetermineExchangeRate(string baseCurrency, string targetCurrency, DateTime date)
+        private static readonly HttpClient _client = new()
         {
-            CheckRequestParemeters(baseCurrency, targetCurrency, date);
+            BaseAddress = new Uri("https://freecurrencyapi.net"),
+        };
 
-            using HttpClient client = new()
-            {
-                BaseAddress = new Uri("https://freecurrencyapi.net")
-            };
-
-            string requestUri = GetRequestUri(baseCurrency, date);
-            Stream stream = client.GetStreamAsync(requestUri).Result;
-
-            using JsonDocument doc = JsonDocument.Parse(stream);
-            JsonElement exchangeRatesData = doc.RootElement[1];
-
-            return exchangeRatesData.GetProperty(targetCurrency).GetDecimal();
-        }
+        private const int _numberOfAttemptsToSendRequest = 3;
+        private string _dateForRequestToApi;
 
         public async Task<decimal> DetermineExchangeRateAsync(string baseCurrency, string targetCurrency, DateTime date)
         {
-            CheckRequestParemeters(baseCurrency, targetCurrency, date);
-
-            using HttpClient client = new()
-            {
-                BaseAddress = new Uri("https://freecurrencyapi.net")
-            };
+            CheckRequestParameters(baseCurrency, targetCurrency, date);
 
             string requestUri = GetRequestUri(baseCurrency, date);
-            Stream stream = await client.GetStreamAsync(requestUri);
+            Stream stream = await SendRequest(requestUri);
 
             using JsonDocument doc = await JsonDocument.ParseAsync(stream);
             JsonElement currencyRateData = doc.RootElement.GetProperty("data");
-            JsonElement exchangeRatesData = currencyRateData.GetProperty(_dateForRequestToApi);
+            JsonElement exchangeRatesData = date.Date == DateTime.Today
+                ? currencyRateData
+                : currencyRateData.GetProperty(_dateForRequestToApi);
+            if (exchangeRatesData.TryGetProperty(targetCurrency, out JsonElement exchangeRate))
+            {
+                return exchangeRate.GetDecimal();
+            }
 
-            return exchangeRatesData.GetProperty(targetCurrency).GetDecimal();
+            throw new ArgumentException(TextResources.UnacceptablePastDate, nameof(date));
         }
 
-        private void CheckRequestParemeters(string baseCurrency, string targetCurrency, DateTime date)
+        private void CheckRequestParameters(string baseCurrency, string targetCurrency, DateTime date)
         {
             if (!ApiSettings.AvailableCurrencies.Contains(baseCurrency))
             {
@@ -81,6 +70,28 @@ namespace FreeCurrencyExchangeApiLib
                 ? "api/v2/latest?apikey=" + ApiSettings.ApiKey + "&base_currency=" + baseCurrency
                 : "api/v2/historical?apikey=" + ApiSettings.ApiKey + "&base_currency=" + baseCurrency +
                   "&date_from=" + _dateForRequestToApi + "&date_to=" + _dateForRequestToApi;
+        }
+
+        private async Task<Stream> SendRequest(string uri)
+        {
+            Stream stream = null;
+            for (int i = 1; i <= _numberOfAttemptsToSendRequest; i++)
+            {
+                try
+                {
+                    stream = await _client.GetStreamAsync(uri);
+                    break;
+                }
+                catch (HttpRequestException)
+                {
+                    if (i == _numberOfAttemptsToSendRequest)
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return stream;
         }
     }
 }

@@ -4,7 +4,7 @@ namespace FreeCurrencyExchangeApiLib
 {
     public static class ApiSettings
     {
-        public static readonly string ApiKey = "043d75f0-4eec-11ec-a304-49a801ae1c08";
+        internal static readonly string ApiKey = "043d75f0-4eec-11ec-a304-49a801ae1c08";
 
         public static string[] AvailableCurrencies =>
             new[]
@@ -20,7 +20,7 @@ namespace FreeCurrencyExchangeApiLib
                 "GYD", "GTQ", "GNF", "GMD", "GEL", "GBP", "ZAR"
             };
 
-        public static DateTime EarliestDate => new(1999, 1, 1);
+        public static DateTime EarliestDate => new(2000, 1, 1);
 
         public static DateTime LatestDate => DateTime.Today;
     }

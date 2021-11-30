@@ -19,7 +19,7 @@ namespace ExchangeRatesOnDate
             using var cts = new CancellationTokenSource();
 
             ReceiverOptions receiverOptions = new() { AllowedUpdates = { } };
-            Handlers handlers = new Handlers(new CurrencyExchanger());
+            Handlers handlers = new(new CurrencyExchanger());
             _bot.StartReceiving(handlers.HandleUpdateAsync,
                 handlers.HandleErrorAsync,
                 receiverOptions,

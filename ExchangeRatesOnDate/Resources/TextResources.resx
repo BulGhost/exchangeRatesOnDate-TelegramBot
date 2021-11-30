@@ -149,4 +149,10 @@
   <data name="UnknownCurrencyCode" xml:space="preserve">
     <value>Unknown currency code.</value>
   </data>
+  <data name="NotSupportedCommand" xml:space="preserve">
+    <value>Unable to execute command.</value>
+  </data>
+  <data name="HttpRequestFail" xml:space="preserve">
+    <value>Failed to get currency exchange rate data. Please try again later.</value>
+  </data>
 </root>

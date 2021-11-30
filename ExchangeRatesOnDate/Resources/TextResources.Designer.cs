@@ -79,6 +79,15 @@ namespace ExchangeRatesOnDate.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to get currency exchange rate data. Please try again later..
+        /// </summary>
+        internal static string HttpRequestFail {
+            get {
+                return ResourceManager.GetString("HttpRequestFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to To get the exchange rate against the ruble, enter the currency code and the required date, separated by a space. For example: &quot;USD 15.11.2021&quot;..
         /// </summary>
         internal static string Instruction {
@@ -102,6 +111,15 @@ namespace ExchangeRatesOnDate.Resources {
         internal static string MessageToStop {
             get {
                 return ResourceManager.GetString("MessageToStop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to execute command..
+        /// </summary>
+        internal static string NotSupportedCommand {
+            get {
+                return ResourceManager.GetString("NotSupportedCommand", resourceCulture);
             }
         }
         

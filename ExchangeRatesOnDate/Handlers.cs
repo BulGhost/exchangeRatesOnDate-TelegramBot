@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,9 +9,6 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InlineQueryResults;
-using Telegram.Bot.Types.InputFiles;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ExchangeRatesOnDate
 {
@@ -24,7 +17,7 @@ namespace ExchangeRatesOnDate
         private const int _currencyCodeLength = 3;
         private const string _baseCurrencyCode = "RUB";
         private const int _minDecimalsForCheapCurrencies = 3;
-        private ICurrencyExchanger _exchanger;
+        private readonly ICurrencyExchanger _exchanger;
 
         public Handlers(ICurrencyExchanger exchanger)
         {
@@ -33,6 +26,7 @@ namespace ExchangeRatesOnDate
 
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             Task handler = update.Type switch
             {
                 UpdateType.Message => BotOnMessageReceived(botClient, update.Message!),
@@ -42,7 +36,7 @@ namespace ExchangeRatesOnDate
 
             try
             {
-                await handler;
+                await handler.ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -66,33 +60,66 @@ namespace ExchangeRatesOnDate
 
         private async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            if (message.Type != MessageType.Text)
-                return;
-
             await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
-            string[] requestParameters = message.Text!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (!await TryParseMessage(botClient, message))
+            {
+                return;
+            }
+
+            string[] requestParameters = GetRequestParemeters(message);
+            string targetCurrencyCode = requestParameters[0];
+            DateTime date = DateTime.Parse(requestParameters[1]);
+
+            try
+            {
+                decimal exchangeRate = await _exchanger.DetermineExchangeRateAsync(_baseCurrencyCode,
+                    targetCurrencyCode, date);
+                string reply = string.Format(TextResources.Reply, date.ToShortDateString(),
+                    targetCurrencyCode, FormatExchangeRate(exchangeRate));
+                await botClient.SendTextMessageAsync(message.Chat.Id, reply);
+            }
+            catch (ArgumentException ex)
+            {
+                await botClient.SendTextMessageAsync(message.Chat.Id, ex.Message.Remove(ex.Message.IndexOf('(')));
+            }
+            catch (HttpRequestException ex)
+            {
+                await botClient.SendTextMessageAsync(message.Chat.Id, TextResources.HttpRequestFail);
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private async Task<bool> TryParseMessage(ITelegramBotClient botClient, Message message)
+        {
+            if (message.Type != MessageType.Text)
+            {
+                await botClient.SendTextMessageAsync(message.Chat.Id, TextResources.NotSupportedCommand);
+                await botClient.SendTextMessageAsync(message.Chat.Id, TextResources.Instruction);
+                return false;
+            }
+
+            string[] requestParameters = GetRequestParemeters(message);
             if (!CurrencyCodeIsValid(requestParameters[0]))
             {
                 await botClient.SendTextMessageAsync(message.Chat.Id, TextResources.UnknownCurrencyCode);
                 await botClient.SendTextMessageAsync(message.Chat.Id, TextResources.Instruction);
-                return;
+                return false;
             }
 
-            string targetCurrencyCode = requestParameters[0];
-
-            if (!DateTime.TryParse(requestParameters[1], out DateTime date))
+            if (!DateTime.TryParse(requestParameters[1], out _))
             {
                 await botClient.SendTextMessageAsync(message.Chat.Id, TextResources.InvalidDate);
                 await botClient.SendTextMessageAsync(message.Chat.Id, TextResources.Instruction);
-                return;
+                return false;
             }
 
-            decimal exchangeRate = await _exchanger.DetermineExchangeRateAsync(_baseCurrencyCode,
-                targetCurrencyCode, date);
-            string reply = string.Format(TextResources.Reply, date.ToShortDateString(),
-                targetCurrencyCode, FormatExchangeRate(exchangeRate));
-            await botClient.SendTextMessageAsync(message.Chat.Id, reply);
+            return true;
+        }
+
+        private string[] GetRequestParemeters(Message message)
+        {
+            return message.Text!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         }
 
         private bool CurrencyCodeIsValid(string currencyCode)
