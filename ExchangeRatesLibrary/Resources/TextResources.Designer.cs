@@ -22,7 +22,7 @@ namespace FreeCurrencyExchangeApiLib.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class TextResources {
+    public class TextResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace FreeCurrencyExchangeApiLib.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FreeCurrencyExchangeApiLib.Resources.TextResources", typeof(TextResources).Assembly);
@@ -51,7 +51,7 @@ namespace FreeCurrencyExchangeApiLib.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace FreeCurrencyExchangeApiLib.Resources {
         /// <summary>
         ///   Looks up a localized string similar to The date in the future is unacceptable..
         /// </summary>
-        internal static string DateInFutureError {
+        public static string DateInFutureError {
             get {
                 return ResourceManager.GetString("DateInFutureError", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace FreeCurrencyExchangeApiLib.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Currency with this code is not supported..
         /// </summary>
-        internal static string InvalidCurrencyCode {
+        public static string InvalidCurrencyCode {
             get {
                 return ResourceManager.GetString("InvalidCurrencyCode", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace FreeCurrencyExchangeApiLib.Resources {
         /// <summary>
         ///   Looks up a localized string similar to No data on this date..
         /// </summary>
-        internal static string UnacceptablePastDate {
+        public static string UnacceptablePastDate {
             get {
                 return ResourceManager.GetString("UnacceptablePastDate", resourceCulture);
             }

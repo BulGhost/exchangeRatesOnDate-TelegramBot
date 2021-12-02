@@ -134,9 +134,6 @@
 [{0}]
 {1}</value>
   </data>
-  <data name="UnknownUpdateType" xml:space="preserve">
-    <value>Unknown update type: {0}</value>
-  </data>
   <data name="Instruction" xml:space="preserve">
     <value>To get the exchange rate against the ruble, enter the currency code and the required date, separated by a space. For example: "USD 15.11.2021".</value>
   </data>
@@ -154,5 +151,14 @@
   </data>
   <data name="HttpRequestFail" xml:space="preserve">
     <value>Failed to get currency exchange rate data. Please try again later.</value>
+  </data>
+  <data name="DateInFuture" xml:space="preserve">
+    <value>The date in the future is unacceptable.</value>
+  </data>
+  <data name="UnhandledException" xml:space="preserve">
+    <value>Unhandled exception ({0})</value>
+  </data>
+  <data name="UnhandledExceptionWithAssumblyData" xml:space="preserve">
+    <value>Unhandled exception in {0} v{1}</value>
   </data>
 </root>

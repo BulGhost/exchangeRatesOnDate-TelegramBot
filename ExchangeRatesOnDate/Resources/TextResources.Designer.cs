@@ -22,7 +22,7 @@ namespace ExchangeRatesOnDate.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class TextResources {
+    public class TextResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace ExchangeRatesOnDate.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ExchangeRatesOnDate.Resources.TextResources", typeof(TextResources).Assembly);
@@ -51,7 +51,7 @@ namespace ExchangeRatesOnDate.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,16 +63,25 @@ namespace ExchangeRatesOnDate.Resources {
         /// <summary>
         ///   Looks up a localized string similar to ExchangeRatesOnDate_Bot is running!.
         /// </summary>
-        internal static string BotIsRunning {
+        public static string BotIsRunning {
             get {
                 return ResourceManager.GetString("BotIsRunning", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The date in the future is unacceptable..
+        /// </summary>
+        public static string DateInFuture {
+            get {
+                return ResourceManager.GetString("DateInFuture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Receiving updates finished..
         /// </summary>
-        internal static string Finish {
+        public static string Finish {
             get {
                 return ResourceManager.GetString("Finish", resourceCulture);
             }
@@ -81,7 +90,7 @@ namespace ExchangeRatesOnDate.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Failed to get currency exchange rate data. Please try again later..
         /// </summary>
-        internal static string HttpRequestFail {
+        public static string HttpRequestFail {
             get {
                 return ResourceManager.GetString("HttpRequestFail", resourceCulture);
             }
@@ -90,7 +99,7 @@ namespace ExchangeRatesOnDate.Resources {
         /// <summary>
         ///   Looks up a localized string similar to To get the exchange rate against the ruble, enter the currency code and the required date, separated by a space. For example: &quot;USD 15.11.2021&quot;..
         /// </summary>
-        internal static string Instruction {
+        public static string Instruction {
             get {
                 return ResourceManager.GetString("Instruction", resourceCulture);
             }
@@ -99,7 +108,7 @@ namespace ExchangeRatesOnDate.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Fail on making out the date..
         /// </summary>
-        internal static string InvalidDate {
+        public static string InvalidDate {
             get {
                 return ResourceManager.GetString("InvalidDate", resourceCulture);
             }
@@ -108,7 +117,7 @@ namespace ExchangeRatesOnDate.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Press &quot;Esc&quot; to stop..
         /// </summary>
-        internal static string MessageToStop {
+        public static string MessageToStop {
             get {
                 return ResourceManager.GetString("MessageToStop", resourceCulture);
             }
@@ -117,7 +126,7 @@ namespace ExchangeRatesOnDate.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Unable to execute command..
         /// </summary>
-        internal static string NotSupportedCommand {
+        public static string NotSupportedCommand {
             get {
                 return ResourceManager.GetString("NotSupportedCommand", resourceCulture);
             }
@@ -126,7 +135,7 @@ namespace ExchangeRatesOnDate.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {0}, 1 {1} =  {2} RUB.
         /// </summary>
-        internal static string Reply {
+        public static string Reply {
             get {
                 return ResourceManager.GetString("Reply", resourceCulture);
             }
@@ -135,7 +144,7 @@ namespace ExchangeRatesOnDate.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Receiving updates started..
         /// </summary>
-        internal static string StartReceivingUpdates {
+        public static string StartReceivingUpdates {
             get {
                 return ResourceManager.GetString("StartReceivingUpdates", resourceCulture);
             }
@@ -146,27 +155,36 @@ namespace ExchangeRatesOnDate.Resources {
         ///[{0}]
         ///{1}.
         /// </summary>
-        internal static string TelegramApiError {
+        public static string TelegramApiError {
             get {
                 return ResourceManager.GetString("TelegramApiError", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown currency code..
+        ///   Looks up a localized string similar to Unhandled exception ({0}).
         /// </summary>
-        internal static string UnknownCurrencyCode {
+        public static string UnhandledException {
             get {
-                return ResourceManager.GetString("UnknownCurrencyCode", resourceCulture);
+                return ResourceManager.GetString("UnhandledException", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown update type: {0}.
+        ///   Looks up a localized string similar to Unhandled exception in {0} v{1}.
         /// </summary>
-        internal static string UnknownUpdateType {
+        public static string UnhandledExceptionWithAssumblyData {
             get {
-                return ResourceManager.GetString("UnknownUpdateType", resourceCulture);
+                return ResourceManager.GetString("UnhandledExceptionWithAssumblyData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown currency code..
+        /// </summary>
+        public static string UnknownCurrencyCode {
+            get {
+                return ResourceManager.GetString("UnknownCurrencyCode", resourceCulture);
             }
         }
     }
