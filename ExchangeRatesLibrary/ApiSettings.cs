@@ -4,8 +4,6 @@ namespace FreeCurrencyExchangeApiLib
 {
     public static class ApiSettings
     {
-        internal const string ApiKey = "043d75f0-4eec-11ec-a304-49a801ae1c08";
-
         public static string[] AvailableCurrencies =>
             new[]
             {

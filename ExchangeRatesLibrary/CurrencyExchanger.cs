@@ -18,10 +18,12 @@ namespace FreeCurrencyExchangeApiLib
 
         private const int _numberOfAttemptsToSendRequest = 3;
         private string _dateForRequestToApi;
+        private readonly string _apiKey;
         private readonly ILogger _logger;
 
-        public CurrencyExchanger(ILogger<CurrencyExchanger> logger)
+        public CurrencyExchanger(string apiKey, ILogger<CurrencyExchanger> logger)
         {
+            _apiKey = apiKey;
             _logger = logger;
         }
 
@@ -79,8 +81,8 @@ namespace FreeCurrencyExchangeApiLib
             _dateForRequestToApi = $"{date.Year:D4}-{date.Month:D2}-{date.Day:D2}";
 
             return date.Date == DateTime.Today
-                ? "api/v2/latest?apikey=" + ApiSettings.ApiKey + "&base_currency=" + baseCurrency
-                : "api/v2/historical?apikey=" + ApiSettings.ApiKey + "&base_currency=" + baseCurrency +
+                ? "api/v2/latest?apikey=" + _apiKey + "&base_currency=" + baseCurrency
+                : "api/v2/historical?apikey=" + _apiKey + "&base_currency=" + baseCurrency +
                   "&date_from=" + _dateForRequestToApi + "&date_to=" + _dateForRequestToApi;
         }
 

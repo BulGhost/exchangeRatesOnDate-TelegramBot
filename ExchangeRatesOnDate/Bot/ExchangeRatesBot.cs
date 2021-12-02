@@ -3,6 +3,7 @@ using System.Threading;
 using ExchangeRatesOnDate.ExtensionsWrapper;
 using ExchangeRatesOnDate.Resources;
 using FreeCurrencyExchangeApiLib;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
@@ -12,22 +13,25 @@ namespace ExchangeRatesOnDate.Bot
     public class ExchangeRatesBot
     {
         private static TelegramBotClient? _bot;
+        private readonly IConfiguration _config;
         private readonly ICurrencyExchanger _exchanger;
         private readonly IExtensionsWrapper _extensionsWrapper;
         private readonly ILogger _logger;
 
-        public ExchangeRatesBot(ICurrencyExchanger exchanger, IExtensionsWrapper extensionsWrapper,
+        public ExchangeRatesBot(IConfiguration config, ICurrencyExchanger exchanger, IExtensionsWrapper extensionsWrapper,
             ILogger<ExchangeRatesBot> logger)
         {
             _exchanger = exchanger;
             _extensionsWrapper = extensionsWrapper;
             _logger = logger;
+            _config = config;
         }
 
         public void Run()
         {
             _logger.LogInformation("Start application running");
-            _bot = new TelegramBotClient(Configuration.BotToken);
+            string botToken = _config.GetValue<string>("BotConfiguration:Token");
+            _bot = new TelegramBotClient(botToken);
             Console.WriteLine(TextResources.BotIsRunning);
 
             using var cts = new CancellationTokenSource();

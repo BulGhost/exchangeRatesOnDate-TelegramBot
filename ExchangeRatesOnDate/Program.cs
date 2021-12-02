@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using ExchangeRatesOnDate.Bot;
 using ExchangeRatesOnDate.ExtensionsWrapper;
 using ExchangeRatesOnDate.Resources;
 using FreeCurrencyExchangeApiLib;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
@@ -24,10 +26,9 @@ namespace ExchangeRatesOnDate
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
             ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
-            _logger = (ILogger)serviceProvider.GetService(typeof(ILogger<Program>));
+            _logger = serviceProvider.GetService<ILogger<Program>>();
 
-            ExchangeRatesBot bot = serviceProvider.GetRequiredService<ExchangeRatesBot>();
-            bot.Run();
+            serviceProvider.GetRequiredService<ExchangeRatesBot>().Run();
         }
 
         private static void LogUnhandledException(Exception exception, string source)
@@ -51,8 +52,12 @@ namespace ExchangeRatesOnDate
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            IConfiguration config = LoadConfiguration();
+            services.AddSingleton(config);
             services.AddSingleton<ExchangeRatesBot>();
-            services.AddSingleton<ICurrencyExchanger, CurrencyExchanger>();
+            string freeCurrencyExchangeApiKey = config.GetValue<string>("ApiConfiguration:ApiKey");
+            services.AddSingleton<ICurrencyExchanger>(provider =>
+                new CurrencyExchanger(freeCurrencyExchangeApiKey, provider.GetService<ILogger<CurrencyExchanger>>()));
             services.AddSingleton<IExtensionsWrapper, ExtensionsWrapper.ExtensionsWrapper>();
             services.AddLogging(logBuilder =>
             {
@@ -60,6 +65,15 @@ namespace ExchangeRatesOnDate
                 logBuilder.SetMinimumLevel(LogLevel.Debug);
                 logBuilder.AddNLog("NLog.config");
             });
+        }
+
+        private static IConfiguration LoadConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            return builder.Build();
         }
     }
 }
