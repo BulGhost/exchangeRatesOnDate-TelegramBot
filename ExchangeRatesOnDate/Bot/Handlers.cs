@@ -20,6 +20,7 @@ namespace ExchangeRatesOnDate.Bot
         private const int _currencyCodeLength = 3;
         private const string _baseCurrencyCode = "RUB";
         private const int _minDecimalsForCheapCurrencies = 3;
+        private readonly NumberFormatInfo _numberFormat = new() { NumberDecimalSeparator = ",", NumberGroupSeparator = " "};
         private readonly ICurrencyExchanger _exchanger;
         private readonly IExtensionsWrapper _extensionsWrapper;
         private readonly ILogger _logger;
@@ -84,17 +85,17 @@ namespace ExchangeRatesOnDate.Bot
             try
             {
                 _logger.LogInformation("Message with id={0} successfully parsed", message.MessageId);
-                decimal exchangeRate = await _exchanger.DetermineExchangeRateAsync(_baseCurrencyCode,
+                decimal exchangeRate = await _exchanger.GetExchangeRateFromApiAsync(_baseCurrencyCode,
                     targetCurrencyCode, date);
-                _logger.LogInformation("Exchange rate received from server (message id={0})", message.MessageId);
-                string reply = string.Format(TextResources.Reply, date.ToShortDateString(),
+                string reply = string.Format(TextResources.Reply, date.ToString("dd.MM.yyyy"),
                     targetCurrencyCode, FormatExchangeRate(exchangeRate));
+                _logger.LogInformation("Response to the message with id={0} formed", message.MessageId);
                 await _extensionsWrapper.SendTextMessageAsync(botClient, message.Chat.Id, reply);
             }
-            catch (ArgumentException ex)
+            catch (CurrencyExchangeException ex)
             {
                 _logger.LogInformation("No data on server (message id={0})", message.MessageId);
-                await _extensionsWrapper.SendTextMessageAsync(botClient, message.Chat.Id, ex.Message);
+                await _extensionsWrapper.SendTextMessageAsync(botClient, message.Chat.Id, ex.CauseOfError);
             }
             catch (HttpRequestException ex)
             {
@@ -123,8 +124,8 @@ namespace ExchangeRatesOnDate.Bot
             }
 
             currencyCode = requestParameters[0];
-            string[] formatStrings = { "dd.MM/yyyy", "MM-dd-yyyy", "yyyy-MM-dd", "dd/MM/yyyy" };
-            if (!DateTime.TryParseExact(requestParameters[1], formatStrings, new CultureInfo("ru-RU"), DateTimeStyles.None, out date))
+            string[] formatStrings = { "dd.MM.yyyy", "MM-dd-yyyy", "yyyy-MM-dd", "dd/MM/yyyy" };
+            if (!DateTime.TryParseExact(requestParameters[1], formatStrings, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
             {
                 _logger.LogDebug("Message with id={0} has invalid date", message.MessageId);
                 errorMessage = TextResources.InvalidDate;
@@ -144,7 +145,7 @@ namespace ExchangeRatesOnDate.Bot
 
         private string[] GetRequestParemeters(Message message)
         {
-            return message.Text!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return message.Text!.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         }
 
         private bool CurrencyCodeIsValid(string currencyCode)
@@ -157,7 +158,7 @@ namespace ExchangeRatesOnDate.Bot
         {
             if (exchangeRate < 1m)
             {
-                return $"{1 / exchangeRate:F2}";
+                return (1 / exchangeRate).ToString("N2", _numberFormat);
             }
 
             int decimals = _minDecimalsForCheapCurrencies;
@@ -166,7 +167,7 @@ namespace ExchangeRatesOnDate.Bot
                 decimals++;
             }
 
-            return (1 / exchangeRate).ToString("N" + decimals);
+            return (1 / exchangeRate).ToString("N" + decimals, _numberFormat);
         }
 
         private Task UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)

@@ -1,7 +1,6 @@
 using ExchangeRatesOnDate.Bot;
 using ExchangeRatesOnDate.ExtensionsWrapper;
 using ExchangeRatesOnDate.Resources;
-using ExchangeRatesOnDate.Tests.Stubs;
 using FreeCurrencyExchangeApiLib;
 using Moq;
 using System;
@@ -149,8 +148,8 @@ namespace ExchangeRatesOnDate.Tests
         {
             const string exceptionMessage = "exMessage";
             _currencyExchangerMock.Setup(mock =>
-                    mock.DetermineExchangeRateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()))
-                .Throws(new ArgumentException(exceptionMessage));
+                    mock.GetExchangeRateFromApiAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()))
+                .Throws(new CurrencyExchangeException(string.Empty, exceptionMessage));
             var chat = new Chat();
             var updateStub = new Update { Message = new Message { Chat = chat, Text = "BTC 16.05.2021" } };
             var handlers = new Handlers(_currencyExchangerMock.Object, _extensionsWrapperMock.Object, _loggerMock.Object);
@@ -169,7 +168,7 @@ namespace ExchangeRatesOnDate.Tests
         public void Send_info_message_to_client_if_library_used_threw_HttpRequestException()
         {
             _currencyExchangerMock.Setup(mock =>
-                    mock.DetermineExchangeRateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()))
+                    mock.GetExchangeRateFromApiAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()))
                 .Throws<HttpRequestException>();
             var chat = new Chat();
             var updateStub = new Update { Message = new Message { Chat = chat, Text = "USD 16.05.2021" } };
@@ -191,7 +190,7 @@ namespace ExchangeRatesOnDate.Tests
         public void Send_exchange_rates_on_date_as_requested(string request, decimal exchangeRate, string response)
         {
             _currencyExchangerMock.Setup(mock =>
-                    mock.DetermineExchangeRateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()))
+                    mock.GetExchangeRateFromApiAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()))
                 .ReturnsAsync(exchangeRate);
             var chat = new Chat();
             var updateStub = new Update { Message = new Message { Chat = chat, Text = request } };

@@ -5,6 +5,6 @@ namespace FreeCurrencyExchangeApiLib
 {
     public interface ICurrencyExchanger
     {
-        Task<decimal> DetermineExchangeRateAsync(string baseCurrency, string targetCurrency, DateTime date);
+        Task<decimal> GetExchangeRateFromApiAsync(string baseCurrency, string targetCurrency, DateTime date);
     }
 }

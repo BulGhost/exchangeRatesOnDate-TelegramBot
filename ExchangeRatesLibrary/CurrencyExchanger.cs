@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -11,11 +12,14 @@ namespace FreeCurrencyExchangeApiLib
 {
     public class CurrencyExchanger : ICurrencyExchanger
     {
-        private static readonly HttpClient _client = new()
+        private readonly HttpClient _client = new()
         {
-            BaseAddress = new Uri("https://freecurrencyapi.net"),
+            BaseAddress = new Uri("https://freecurrencyapi.net")
         };
 
+        private const string _invalidRequestErrorMessage = "Error during checking request parameters";
+        private const string _jsonParsingErrorMessage = "Fail on Json parsing";
+        private const string _noDataErrorMessage = "No request data on the server";
         private const int _numberOfAttemptsToSendRequest = 3;
         private string _dateForRequestToApi;
         private readonly string _apiKey;
@@ -27,27 +31,36 @@ namespace FreeCurrencyExchangeApiLib
             _logger = logger;
         }
 
-        public async Task<decimal> DetermineExchangeRateAsync(string baseCurrency, string targetCurrency, DateTime date)
+        public async Task<decimal> GetExchangeRateFromApiAsync(string baseCurrency, string targetCurrency,
+            DateTime date)
         {
             _logger.LogInformation("Start determine exchange rate");
             CheckRequestParameters(baseCurrency, targetCurrency, date);
 
             string requestUri = GetRequestUri(baseCurrency, date);
-            Stream stream = await SendRequest(requestUri);
+            await using Stream stream = await SendRequest(requestUri).ConfigureAwait(false);
 
-            using JsonDocument doc = await JsonDocument.ParseAsync(stream);
-            JsonElement currencyRateData = doc.RootElement.GetProperty("data");
-            JsonElement exchangeRatesData = date.Date == DateTime.Today
-                ? currencyRateData
-                : currencyRateData.GetProperty(_dateForRequestToApi);
-            if (exchangeRatesData.TryGetProperty(targetCurrency, out JsonElement exchangeRate))
+            try
             {
-                _logger.LogInformation("Required exchange rate is got from Json");
-                return exchangeRate.GetDecimal();
+                using JsonDocument doc = await JsonDocument.ParseAsync(stream);
+                JsonElement currencyRateData = doc.RootElement.GetProperty("data");
+                JsonElement exchangeRatesData = date.Date == DateTime.Today
+                    ? currencyRateData
+                    : currencyRateData.GetProperty(_dateForRequestToApi);
+                if (exchangeRatesData.TryGetProperty(targetCurrency, out JsonElement exchangeRate))
+                {
+                    _logger.LogInformation("Required exchange rate is got from Json");
+                    return exchangeRate.GetDecimal();
+                }
+            }
+            catch (Exception ex) when (ex is JsonException or KeyNotFoundException)
+            {
+                _logger.LogError(ex, "Fail on trying to get data from Json");
+                throw new CurrencyExchangeException(_jsonParsingErrorMessage, ex, TextResources.UnableToProcessData);
             }
 
             _logger.LogInformation("No {0} exchange rate data as of {1}", targetCurrency, date.ToShortDateString());
-            throw new ArgumentException(TextResources.UnacceptablePastDate);
+            throw new CurrencyExchangeException(_noDataErrorMessage, TextResources.UnacceptablePastDate);
         }
 
         private void CheckRequestParameters(string baseCurrency, string targetCurrency, DateTime date)
@@ -56,19 +69,19 @@ namespace FreeCurrencyExchangeApiLib
                 !ApiSettings.AvailableCurrencies.Contains(targetCurrency))
             {
                 _logger.LogInformation("One or both of currency codes is unavailable: {0}, {1}", baseCurrency, targetCurrency);
-                throw new ArgumentException(TextResources.InvalidCurrencyCode);
+                throw new CurrencyExchangeException(_invalidRequestErrorMessage, TextResources.InvalidCurrencyCode);
             }
 
             if (date > ApiSettings.LatestDate)
             {
                 _logger.LogInformation("Unavailable date: {0}", date.ToShortDateString());
-                throw new ArgumentException(TextResources.DateInFutureError);
+                throw new CurrencyExchangeException(_invalidRequestErrorMessage, TextResources.DateInFutureError);
             }
 
             if (date < ApiSettings.EarliestDate)
             {
                 _logger.LogInformation("No data on this date: {0}", date.ToShortDateString());
-                throw new ArgumentException(TextResources.UnacceptablePastDate);
+                throw new CurrencyExchangeException(_invalidRequestErrorMessage, TextResources.UnacceptablePastDate);
             }
 
             _logger.LogInformation("Checking request parameters is complete");
@@ -97,12 +110,12 @@ namespace FreeCurrencyExchangeApiLib
                     stream = await _client.GetStreamAsync(uri);
                     break;
                 }
-                catch (HttpRequestException)
+                catch (HttpRequestException ex)
                 {
                     _logger.LogInformation("Unsuccessful attempt to get response from API");
                     if (i == _numberOfAttemptsToSendRequest)
                     {
-                        _logger.LogWarning("Attempts to get response from API exhausted");
+                        _logger.LogWarning(ex, "Attempts to get response from API exhausted. URI: {0}", uri);
                         throw;
                     }
                 }

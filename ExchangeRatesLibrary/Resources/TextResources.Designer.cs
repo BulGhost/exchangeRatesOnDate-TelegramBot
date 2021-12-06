@@ -79,7 +79,16 @@ namespace FreeCurrencyExchangeApiLib.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No data on this date..
+        ///   Looks up a localized string similar to Failed to process data received from server..
+        /// </summary>
+        public static string UnableToProcessData {
+            get {
+                return ResourceManager.GetString("UnableToProcessData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No data available for this date..
         /// </summary>
         public static string UnacceptablePastDate {
             get {
